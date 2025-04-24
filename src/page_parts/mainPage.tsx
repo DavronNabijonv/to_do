@@ -1,5 +1,5 @@
 // import React from 'react'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { FaRegMoon } from "react-icons/fa";
 import { TbSunLow } from "react-icons/tb";
@@ -8,31 +8,36 @@ import Modal from "../modal/modal";
 import { useTodos } from "../hooks/useTodo";
 import { CiEdit } from "react-icons/ci";
 import { FaRegTrashAlt } from "react-icons/fa";
-import notfound from '../assets/Detective-check-footprint 1.png'
+import notfound from "../assets/Detective-check-footprint 1.png";
 // import { data } from "react-router-dom";
 
 import { useTodoById } from "../hooks/useTodo";
 
-const get_ID = {};
-
 export default function MainPage() {
-
   // get information
   const { data: todos, isLoading, error } = useTodos();
+  useEffect(() => {
+    if (todos) {
+      setPropsTodos(todos);
+    }
+  }, [todos]);
+  console.log(todos);
 
   const [darkMode, setDarkMode] = useState(false);
   const [tog, setTog] = useState(false);
 
   // get id number from user
-  const [userId, setUserId] = useState(Number);
+  const [userId, setUserId] = useState<number>(0);
 
   // for show all todos
-  const [propsTodos, setPropsTodos] = useState(todos);
+  const [propsTodos, setPropsTodos] = useState<ToDo[]>([]);
 
-  const uncomplatedTodos = todos.filter((old: ToDo) => old.completed === false);
-  const complatedTodos = todos.filter((old: ToDo) => old.completed === true);
-
-  
+  const uncomplatedTodos = (todos ?? []).filter(
+    (old: ToDo) => old.completed === false
+  );
+  const complatedTodos = (todos ?? []).filter(
+    (old: ToDo) => old.completed === true
+  );
 
   return (
     <div className="mainPage max-w-[900px] w-full mx-auto flex flex-col flex-wrap gap-[15px] h-[100%] relative mt-[100px] ">
@@ -71,24 +76,29 @@ export default function MainPage() {
             Uzbek
           </option>
         </select>
-        <select className=" max-w-[180px] bg-indigo-700 text-white text-[18px] rounded-[8px] p-[8px] ">
+        <select
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === "ALL") setPropsTodos(todos ?? []);
+            else if (value === "complate") setPropsTodos(complatedTodos);
+            else if (value === "incomplate") setPropsTodos(uncomplatedTodos);
+          }}
+          className=" max-w-[180px] bg-indigo-700 text-white text-[18px] rounded-[8px] p-[8px] "
+        >
           <option
             value="ALL"
-            onClick={()=>setPropsTodos(todos)}
             className=" bg-white text-indigo-700 hover:bg-indigo-400 text-[19px] "
           >
             ALL
           </option>
           <option
             value="complate"
-            onClick={()=>setPropsTodos(complatedTodos)}
             className=" bg-white text-indigo-700 hover:bg-indigo-400 text-[19px] "
           >
             Complate
           </option>
           <option
             value="incomplate"
-            onClick={()=>setPropsTodos(uncomplatedTodos)}
             className=" bg-white text-indigo-700 hover:bg-indigo-400 text-[19px] "
           >
             Incomplate
@@ -108,8 +118,10 @@ export default function MainPage() {
         <p className="text-[25px] text-indigo-700 ">Yuklanmoqda</p>
       ) : error ? (
         <p className="text-[25px]">Xatolik</p>
-      ) :!todos?<img src={notfound} loading="lazy" alt="not found information" /> : (
-        <AllData byIdTodo={{ byIdTodos: propsTodos}} />
+      ) : !todos ? (
+        <img src={notfound} loading="lazy" alt="not found information" />
+      ) : (
+        <AllData byIdTodo={{ byIdTodos: propsTodos }} />
       )}
 
       <div className=" w-full flex justify-end ">
@@ -149,15 +161,12 @@ interface ToDo {
 }
 
 function AllData({ byIdTodo }: { byIdTodo: TodoById }) {
-
-  
-
-
+  console.log(byIdTodo);
   return (
     <>
       <div>
-        {byIdTodo.byIdTodos.map((item: ToDo) => (
-          <div className="border-b-1px border-b-indigo-700  ">
+        {(byIdTodo.byIdTodos ?? []).map((item: ToDo) => (
+          <div key={index} className="border-b-1px border-b-indigo-700  ">
             <input type="checkbox" checked={item.completed} />
             <p
               className={`${
