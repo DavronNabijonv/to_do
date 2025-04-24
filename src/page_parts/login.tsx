@@ -28,6 +28,7 @@ export default function Login({ changeTogle }: LoginProps) {
       });
   };
 
+  // aos animation 
   useEffect(() => {
     AOS.init({
       duration: 1000, // animatsiya davomiyligi (ms)
