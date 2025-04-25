@@ -10,9 +10,10 @@ import notfound from "../assets/Detective-check-footprint 1.png";
 import { languageList } from "./language";
 
 // get request for all information hook
-import { useTodos } from "../hooks/useTodo";
+import { useDeleteTodo, useTodos } from "../hooks/useTodo";
 // byId request hook
 import { useTodoById } from "../hooks/useTodo";
+import { toast } from "react-toastify";
 
 export default function MainPage() {
 
@@ -201,6 +202,7 @@ export default function MainPage() {
             setTog(false);
           }}
           language={languageList[lang]}
+          editModal={}
         />
       )}
     </div>
@@ -228,6 +230,21 @@ function AllData({ byIdTodos , togleFunc }: TodoById ) {
 
   const [editTodo,setEditTodo] = useState<ToDo | null>(null);
 
+    
+
+  const {mutateAsync} = useDeleteTodo();
+
+  const delRequest = async (id: string) => {
+    mutateAsync(id)
+      .then((res) => {
+        console.log("Modal succes:", res);
+        toast.success("Successfully!");
+      })
+      .catch(() => {
+        toast.error("Error");
+      });
+  };
+
   return (
     <>
       <div>
@@ -254,7 +271,9 @@ function AllData({ byIdTodos , togleFunc }: TodoById ) {
               }} className="border-0 bg-none text-gray-500 text-[22px] hover:cursor-pointer hover:text-indigo-700 ">
                 <CiEdit />
               </button>
-              <button className="border-0 bg-none text-gray-500 text-[18px] hover:cursor-pointer hover:text-red-700 ">
+              <button
+               onClick={() => delRequest(item._id)}
+              className="border-0 bg-none text-gray-500 text-[18px] hover:cursor-pointer hover:text-red-700 ">
                 <FaRegTrashAlt />
               </button>
             </div>

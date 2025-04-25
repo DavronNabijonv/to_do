@@ -2,12 +2,29 @@ import React, { useState } from "react";
 import { useAddTodo } from "../hooks/useTodo";
 import { toast } from "react-toastify";
 
+
+  // todo requeriments
+interface ToDo {
+  title: String;
+  completed: boolean;
+  description: String;
+  user: String;
+  __v: Number;
+  _id: string;
+}
+
+
   interface TogleModal {
     togModal: () => void;
     language:Record<string,string>;
   }
 
-export default function Modal({ togModal , language }: TogleModal) {
+  interface EditModal{
+    togleEdit:boolean;
+    editTodo:{};
+  }
+
+export default function Modal({ togModal , language }: TogleModal,) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [compCheck, setCompCheck] = useState(false);
