@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { FaRegMoon } from "react-icons/fa";
 import { TbSunLow } from "react-icons/tb";
@@ -7,6 +7,7 @@ import Modal from "../modal/modal";
 import { CiEdit } from "react-icons/ci";
 import { FaRegTrashAlt } from "react-icons/fa";
 import notfound from "../assets/Detective-check-footprint 1.png";
+import { languageList } from "./language";
 
 // get request for all information hook
 import { useTodos } from "../hooks/useTodo";
@@ -15,6 +16,7 @@ import { useTodoById } from "../hooks/useTodo";
 
 export default function MainPage() {
 
+  const [lang,setLang] = useState<keyof typeof languageList>('uz');
 
   // request get all information
   const { data: todos, isLoading, error } = useTodos();
@@ -26,10 +28,10 @@ export default function MainPage() {
   const [searchNum, setSearchNum] = useState<number>(0);
 
   // get id of todo tasks for search by id
-  let selectedId = todos?.[searchNum - 1]?._id;
+  // let selectedId = todos?.[searchNum - 1]?._id;
+  const [selectedId,setSelectedId] = useState(todos?.[searchNum - 1]?._id);
 
   const { data: todoById } = useTodoById(selectedId ?? "");
-
 
   // Update propsTodos only when selectedId changes
   useEffect(() => {
@@ -47,6 +49,16 @@ export default function MainPage() {
 
   // togle for dark light mode
   const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const root = window.document.documentElement; // ✅ TO‘G‘RI
+    if (darkMode) {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [darkMode]);
+  
 
   // modal togle
   const [tog, setTog] = useState(false);
@@ -74,8 +86,8 @@ export default function MainPage() {
   };
 
   return (
-    <div className="mainPage max-w-[900px] w-full mx-auto flex flex-col flex-wrap gap-[15px] h-[100%] relative mt-[100px] ">
-      <h1 className=" text-center font-[700] text-[24px] ">TODO LIST</h1>
+    <div className="mainPage bg-white dark:bg-indigo-700 max-w-[900px] w-full mx-auto flex flex-col flex-wrap gap-[15px] h-[100%] relative mt-[100px] ">
+      <h1 className=" text-center font-[700] text-[24px] ">{languageList[lang].todolist}</h1>
 
       <div className=" flex flex-wrap justify-around items-center ">
         <form
@@ -87,18 +99,23 @@ export default function MainPage() {
             value={searchNum}
             onChange={(e) => setSearchNum(Number(e.target.value))}
             className=" text-gray-400 text-[18px] w-[90%] p-[5px] border-0 "
-            placeholder="Search note..."  
+            placeholder="Search note..."
           />
           <button className=" bg-white border-0 bg-white text-[25px] text-indigo-800 ">
             <CiSearch />
           </button>
         </form>
-        <select className=" bg-indigo-700 text-white text-[22px] rounded-[8px] p-[5px] ">
+        <select 
+        onChange={(e)=>{
+          const value = e.target.value as keyof typeof languageList;
+          setLang(value);
+        }}
+        className=" bg-indigo-700 text-white text-[22px] rounded-[8px] p-[5px] ">
           <option
             value="uz"
             className=" bg-white text-indigo-700 hover:bg-indigo-400 "
           >
-            English
+            Uzbek
           </option>
           <option
             value="ru"
@@ -107,10 +124,10 @@ export default function MainPage() {
             Russian
           </option>
           <option
-            value="en"
+            value="eng"
             className=" bg-white text-indigo-700 hover:bg-indigo-400 "
           >
-            Uzbek
+            English
           </option>
         </select>
         <select
@@ -126,25 +143,26 @@ export default function MainPage() {
             value="ALL"
             className=" bg-white text-indigo-700 hover:bg-indigo-400 text-[19px] "
           >
-            ALL
+            {languageList[lang].all}
           </option>
           <option
             value="complate"
             className=" bg-white text-indigo-700 hover:bg-indigo-400 text-[19px] "
           >
-            Complate
+            {languageList[lang].complated}
           </option>
           <option
             value="incomplate"
             className=" bg-white text-indigo-700 hover:bg-indigo-400 text-[19px] "
           >
-            Incomplate
+            {languageList[lang].uncomplated}
           </option>
         </select>
         <button
           className=" p-[10px] flex justify-center items-center text-[18px] rounded-[8px] bg-indigo-700 hover:bg-indigo-400 text-white  "
           onClick={() => {
             setDarkMode(!darkMode);
+            console.log('salom')
           }}
         >
           {darkMode ? <TbSunLow /> : <FaRegMoon />}
@@ -152,13 +170,18 @@ export default function MainPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-[25px] text-indigo-700 ">Yuklanmoqda</p>
+        <p className="text-[25px] text-indigo-700 ">{languageList[lang].load}</p>
       ) : error ? (
-        <p className="text-[25px]">Xatolik</p>
+        <p className="text-[25px]">{languageList[lang].error}</p>
       ) : !todos || !todoById ? (
-        <img src={notfound} loading="lazy" className="  object-contain" alt="not found information" />
+        <img
+          src={notfound}
+          loading="lazy"
+          className="  object-contain"
+          alt="not found information"
+        />
       ) : (
-        <AllData byIdTodo={{ byIdTodos: propsTodos }} />
+        <AllData byIdTodos={propsTodos} togleFunc={() => setTog(true)} />
       )}
 
       <div className=" w-full flex justify-end ">
@@ -176,18 +199,22 @@ export default function MainPage() {
         <Modal
           togModal={() => {
             setTog(false);
-            alert("salom");
           }}
+          language={languageList[lang]}
         />
       )}
     </div>
   );
 }
 
+
+// get todo items
 interface TodoById {
   byIdTodos: ToDo[];
+  togleFunc:()=>void;
 }
 
+// todo requeriments
 interface ToDo {
   title: String;
   completed: boolean;
@@ -197,29 +224,41 @@ interface ToDo {
   _id: string;
 }
 
-function AllData({ byIdTodo }: { byIdTodo: TodoById }) {
+function AllData({ byIdTodos , togleFunc }: TodoById ) {
+
+  const [editTodo,setEditTodo] = useState<ToDo | null>(null);
+
   return (
     <>
       <div>
-        {(byIdTodo.byIdTodos ?? []).map((item: ToDo) => (
-          <div key={item._id} className="border-b-1px border-b-indigo-700  ">
-            <input type="checkbox" checked={item.completed} />
-            <p
-              className={`${
-                item.completed ? "line-through text-gray-500 " : "text-black "
-              }`}
-            >
-              {item.title}
-            </p>
+        {(byIdTodos ?? []).map((item: ToDo) => (
+          <form
+            key={item._id}
+            className="border-b-[1px] border-b-indigo-700 mt-[20px] pb-[10px] flex justify-between items-center  "
+          >
+            <div className=" flex items-center gap-[20px] " >
+              <input type="checkbox" checked={item.completed} />
+              <p
+                className={`${
+                  item.completed ? "line-through text-gray-500 " : "text-black "
+                } text-[20px] `}
+              >
+                {item.title}
+              </p>
+            </div>
             <div className=" flex gap-[15px] items-center ">
-              <button className="border-0 bg-none text-gray-500 text-[18px]">
+              <button onClick={(e)=>{
+                e.preventDefault();
+                togleFunc();
+                setEditTodo(item);
+              }} className="border-0 bg-none text-gray-500 text-[22px] hover:cursor-pointer hover:text-indigo-700 ">
                 <CiEdit />
               </button>
-              <button className="border-0 bg-none text-gray-500 text-[18px]">
+              <button className="border-0 bg-none text-gray-500 text-[18px] hover:cursor-pointer hover:text-red-700 ">
                 <FaRegTrashAlt />
               </button>
             </div>
-          </div>
+          </form>
         ))}
       </div>
     </>

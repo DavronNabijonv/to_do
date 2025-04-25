@@ -5,6 +5,7 @@ import EntrancePage from './page_parts/entrancePage';
 import MainPage from './page_parts/mainPage';
 import { ToastContainer } from 'react-toastify';
 
+
 function App() {
 
   // const [darkMode, setDarkMode] = useState(false);

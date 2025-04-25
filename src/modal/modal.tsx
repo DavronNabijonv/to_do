@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useAddTodo } from "../hooks/useTodo";
 import { toast } from "react-toastify";
 
-interface TogleModal {
-  togModal: () => void;
-}
+  interface TogleModal {
+    togModal: () => void;
+    language:Record<string,string>;
+  }
 
-export default function Modal({ togModal }: TogleModal) {
+export default function Modal({ togModal , language }: TogleModal) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [compCheck, setCompCheck] = useState(false);
@@ -39,7 +40,7 @@ export default function Modal({ togModal }: TogleModal) {
 
       {/* Modal Body */}
       <div className="relative z-50 bg-white rounded-lg p-6  shadow-lg w-full max-w-[500px]">
-        <h2 className="text-xl font-bold mb-4 text-center">NEW NOTE</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">{language.newnote}</h2>
         <form className="flex flex-col gap-[20px]" onSubmit={sendRequest} > 
           <input
             type="text"
@@ -56,7 +57,7 @@ export default function Modal({ togModal }: TogleModal) {
           ></textarea>
 
           <div className="flex justify-between w-full items-center">
-                <span>Completed</span>
+                <span>{language.complated}</span>
               <input
                 type="checkbox"
                 checked={compCheck}
@@ -70,13 +71,13 @@ export default function Modal({ togModal }: TogleModal) {
               onClick={togModal}
               className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             >
-              Cancel
+              {language.cancel}
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
             >
-              Apply
+              {language.apply}
             </button>
           </div>
         </form>
