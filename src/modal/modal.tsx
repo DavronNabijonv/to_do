@@ -45,7 +45,7 @@ export default function Modal({ togModal , language }: TogleModal,) {
     .catch(() => {
         toast.error("Error");
       });
-  }
+  } 
 
   return (
     <div className="fixed top-0 left-0 w-full h-full z-50 flex items-center justify-center">

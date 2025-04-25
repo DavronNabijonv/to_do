@@ -196,7 +196,7 @@ export default function MainPage() {
           <FaPlus />
         </button>
       </div>
-      {tog && (
+      {/* {tog && (
         <Modal
           togModal={() => {
             setTog(false);
@@ -204,7 +204,7 @@ export default function MainPage() {
           language={languageList[lang]}
           editModal={}
         />
-      )}
+      )} */}
     </div>
   );
 }
