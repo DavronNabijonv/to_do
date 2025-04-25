@@ -39,7 +39,7 @@ export default function Login({ changeTogle }: LoginProps) {
   return (
     <div>
       <div data-aos="fade-up">
-        <div className="formPart max-w-[500px] w-full m-auto p-[10px] pt-[20px] rounded-[10px] mt-[10%] border-indigo-700 border-4 ">
+        <div className="formPart flex flex-col gap-[20px] max-w-[500px] w-full m-auto p-[10px] pt-[20px] rounded-[10px] mt-[10%] border-indigo-700 border-2 ">
           <form onSubmit={handleSubmit} className=" flex flex-col gap-[20px]  ">
             <input
               type="text"
@@ -54,19 +54,19 @@ export default function Login({ changeTogle }: LoginProps) {
               onChange={(e) => setPassword(e.target.value)}
               value={password}
               placeholder="Password"
-              className=" p-[10px] rounded-[10px] tex-gray-600 text-[18px] border-[1px] border-purple "
+              className=" p-[10px] rounded-[10px] tex-gray-600 text-[18px] border-[1px] border-indigo-700 "
               required
             />
             <input
               type="submit"
               value="Login"
-              className=" p-[10px] rounded-[10px] tex-gray-600 text-[18px] border-[1px] border-purple w-[200px] m-auto "
+              className=" p-[10px] bg-indigo-700 bordr-0 text-white hover:bg-indigo-500 hover:pointer rounded-[10px] tex-gray-600 text-[18px] border-[1px] border-purple w-[200px] m-auto "
               onSubmit={() => {}}
             />
           </form>
           <div className="toRegister flex flex-row w-full justify-center items-center gap-[20px] ">
             <p className=" text-[18px]  ">Ro`yhatdan o`tish.</p>
-            <button onClick={changeTogle}>Register</button>
+            <button onClick={changeTogle} className=" text-[14px] hover:text-[18px] text-indigi underline " >register</button>
           </div>
         </div>
       </div>

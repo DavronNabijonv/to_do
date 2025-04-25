@@ -1,56 +1,93 @@
-// import React from 'react'
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { FaRegMoon } from "react-icons/fa";
 import { TbSunLow } from "react-icons/tb";
 import { FaPlus } from "react-icons/fa6";
 import Modal from "../modal/modal";
-import { useTodos } from "../hooks/useTodo";
 import { CiEdit } from "react-icons/ci";
 import { FaRegTrashAlt } from "react-icons/fa";
 import notfound from "../assets/Detective-check-footprint 1.png";
-// import { data } from "react-router-dom";
 
+// get request for all information hook
+import { useTodos } from "../hooks/useTodo";
+// byId request hook
 import { useTodoById } from "../hooks/useTodo";
 
 export default function MainPage() {
-  // get information
+
+
+  // request get all information
   const { data: todos, isLoading, error } = useTodos();
+
+  // const all todos
+  const AllTodo = todos;
+
+  // get id number from user
+  const [searchNum, setSearchNum] = useState<number>(0);
+
+  // get id of todo tasks for search by id
+  let selectedId = todos?.[searchNum - 1]?._id;
+
+  const { data: todoById } = useTodoById(selectedId ?? "");
+
+
+  // Update propsTodos only when selectedId changes
+  useEffect(() => {
+    if (todoById) {
+      setPropsTodos([todoById]);
+    }
+  }, [todoById]);
+
+  // reuqest get information by ID only if selectedId exists
   useEffect(() => {
     if (todos) {
       setPropsTodos(todos);
     }
   }, [todos]);
-  console.log(todos);
 
+  // togle for dark light mode
   const [darkMode, setDarkMode] = useState(false);
-  const [tog, setTog] = useState(false);
 
-  // get id number from user
-  const [userId, setUserId] = useState<number>(0);
+  // modal togle
+  const [tog, setTog] = useState(false);
 
   // for show all todos
   const [propsTodos, setPropsTodos] = useState<ToDo[]>([]);
 
+  // get uncomplated todo tasks
   const uncomplatedTodos = (todos ?? []).filter(
     (old: ToDo) => old.completed === false
   );
+
+  // get complated todo tasks
   const complatedTodos = (todos ?? []).filter(
     (old: ToDo) => old.completed === true
   );
+
+  // handle search submit
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const id = searchNum > 0 ? todos?.[searchNum - 1]?._id : "";
+    if (id) {
+      setSelectedId(id); // update selectedId to fetch the todoById
+    }
+  };
 
   return (
     <div className="mainPage max-w-[900px] w-full mx-auto flex flex-col flex-wrap gap-[15px] h-[100%] relative mt-[100px] ">
       <h1 className=" text-center font-[700] text-[24px] ">TODO LIST</h1>
 
       <div className=" flex flex-wrap justify-around items-center ">
-        <form className=" border-1 rounded-[15px] py-[5px] px-[15px] border-indigo-700 flex items-center max-w-[450px]  w-full justify-between ">
+        <form
+          onSubmit={handleSearchSubmit}
+          className=" border-1 rounded-[15px] py-[5px] px-[15px] border-indigo-700 flex items-center max-w-[450px]  w-full justify-between "
+        >
           <input
             type="text"
-            value={userId}
-            onChange={(e) => setUserId(Number(e.target.value))}
-            className=" text-gray-300 text-[18px] p-[5px] border-0 "
-            placeholder="Search note..."
+            value={searchNum}
+            onChange={(e) => setSearchNum(Number(e.target.value))}
+            className=" text-gray-400 text-[18px] w-[90%] p-[5px] border-0 "
+            placeholder="Search note..."  
           />
           <button className=" bg-white border-0 bg-white text-[25px] text-indigo-800 ">
             <CiSearch />
@@ -79,7 +116,7 @@ export default function MainPage() {
         <select
           onChange={(e) => {
             const value = e.target.value;
-            if (value === "ALL") setPropsTodos(todos ?? []);
+            if (value === "ALL") setPropsTodos(AllTodo ?? []);
             else if (value === "complate") setPropsTodos(complatedTodos);
             else if (value === "incomplate") setPropsTodos(uncomplatedTodos);
           }}
@@ -118,8 +155,8 @@ export default function MainPage() {
         <p className="text-[25px] text-indigo-700 ">Yuklanmoqda</p>
       ) : error ? (
         <p className="text-[25px]">Xatolik</p>
-      ) : !todos ? (
-        <img src={notfound} loading="lazy" alt="not found information" />
+      ) : !todos || !todoById ? (
+        <img src={notfound} loading="lazy" className="  object-contain" alt="not found information" />
       ) : (
         <AllData byIdTodo={{ byIdTodos: propsTodos }} />
       )}
@@ -157,16 +194,15 @@ interface ToDo {
   description: String;
   user: String;
   __v: Number;
-  _id: String;
+  _id: string;
 }
 
 function AllData({ byIdTodo }: { byIdTodo: TodoById }) {
-  console.log(byIdTodo);
   return (
     <>
       <div>
         {(byIdTodo.byIdTodos ?? []).map((item: ToDo) => (
-          <div key={index} className="border-b-1px border-b-indigo-700  ">
+          <div key={item._id} className="border-b-1px border-b-indigo-700  ">
             <input type="checkbox" checked={item.completed} />
             <p
               className={`${
