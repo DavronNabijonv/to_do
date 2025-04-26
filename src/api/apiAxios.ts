@@ -1,7 +1,8 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
+const BASE_URL = import.meta.env.VITE_BASE_URL
 
 const api = axios.create({
-  baseURL: "http://185.217.131.96:4949",
+  baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 
