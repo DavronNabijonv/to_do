@@ -16,7 +16,8 @@ export const languageList = {
         'login':'Kirish',
         'royhatdan':'Ro`yhatdan o`tish',
         'tizimga':'Tizimga kirish',
-        'newnote':'Yangi eslatma'
+        'newnote':'Yangi eslatma',
+        'editnote':'Eslatmani tahrirlash'
     },
     'eng':{
         'newnote':'New note',

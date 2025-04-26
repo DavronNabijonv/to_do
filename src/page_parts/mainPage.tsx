@@ -16,8 +16,10 @@ import { useTodoById } from "../hooks/useTodo";
 import { toast } from "react-toastify";
 
 export default function MainPage() {
+  // state for edit data
+  const [editTodo, setEditTodo] = useState<ToDo | null>(null);
 
-  const [lang,setLang] = useState<keyof typeof languageList>('uz');
+  const [lang, setLang] = useState<keyof typeof languageList>("uz");
 
   // request get all information
   const { data: todos, isLoading, error } = useTodos();
@@ -30,7 +32,7 @@ export default function MainPage() {
 
   // get id of todo tasks for search by id
   // let selectedId = todos?.[searchNum - 1]?._id;
-  const [selectedId,setSelectedId] = useState(todos?.[searchNum - 1]?._id);
+  const [selectedId, setSelectedId] = useState(todos?.[searchNum - 1]?._id);
 
   const { data: todoById } = useTodoById(selectedId ?? "");
 
@@ -59,7 +61,6 @@ export default function MainPage() {
       root.classList.remove("dark");
     }
   }, [darkMode]);
-  
 
   // modal togle
   const [tog, setTog] = useState(false);
@@ -88,7 +89,9 @@ export default function MainPage() {
 
   return (
     <div className="mainPage bg-white dark:bg-indigo-700 max-w-[900px] w-full mx-auto flex flex-col flex-wrap gap-[15px] h-[100%] relative mt-[100px] ">
-      <h1 className=" text-center font-[700] text-[24px] ">{languageList[lang].todolist}</h1>
+      <h1 className=" text-center font-[700] text-[24px] ">
+        {languageList[lang].todolist}
+      </h1>
 
       <div className=" flex flex-wrap justify-around items-center ">
         <form
@@ -106,12 +109,13 @@ export default function MainPage() {
             <CiSearch />
           </button>
         </form>
-        <select 
-        onChange={(e)=>{
-          const value = e.target.value as keyof typeof languageList;
-          setLang(value);
-        }}
-        className=" bg-indigo-700 text-white text-[22px] rounded-[8px] p-[5px] ">
+        <select
+          onChange={(e) => {
+            const value = e.target.value as keyof typeof languageList;
+            setLang(value);
+          }}
+          className=" bg-indigo-700 text-white text-[22px] rounded-[8px] p-[5px] "
+        >
           <option
             value="uz"
             className=" bg-white text-indigo-700 hover:bg-indigo-400 "
@@ -163,7 +167,7 @@ export default function MainPage() {
           className=" p-[10px] flex justify-center items-center text-[18px] rounded-[8px] bg-indigo-700 hover:bg-indigo-400 text-white  "
           onClick={() => {
             setDarkMode(!darkMode);
-            console.log('salom')
+            console.log("salom");
           }}
         >
           {darkMode ? <TbSunLow /> : <FaRegMoon />}
@@ -171,7 +175,9 @@ export default function MainPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-[25px] text-indigo-700 ">{languageList[lang].load}</p>
+        <p className="text-[25px] text-indigo-700 ">
+          {languageList[lang].load}
+        </p>
       ) : error ? (
         <p className="text-[25px]">{languageList[lang].error}</p>
       ) : !todos || !todoById ? (
@@ -182,7 +188,12 @@ export default function MainPage() {
           alt="not found information"
         />
       ) : (
-        <AllData byIdTodos={propsTodos} togleFunc={() => setTog(true)} />
+        <AllData
+          byIdTodos={propsTodos}
+          togleFunc={() => setTog(true)}
+          setEditTodo={setEditTodo}
+          language={languageList[lang]}
+        />
       )}
 
       <div className=" w-full flex justify-end ">
@@ -196,43 +207,45 @@ export default function MainPage() {
           <FaPlus />
         </button>
       </div>
-      {/* {tog && (
+      {tog && (
         <Modal
           togModal={() => {
             setTog(false);
+            setEditTodo(null);
           }}
           language={languageList[lang]}
-          editModal={}
+          editModal={editTodo}
         />
-      )} */}
+      )}
     </div>
   );
 }
 
+// todo requeriments
+interface ToDo {
+  title: string;
+  completed: boolean;
+  description: string;
+  user: string;
+  __v: number;
+  _id: string;
+}
 
 // get todo items
 interface TodoById {
   byIdTodos: ToDo[];
-  togleFunc:()=>void;
+  togleFunc: () => void;
+  setEditTodo: (todo: ToDo) => void;
+  language: Record<string, string>;
 }
 
-// todo requeriments
-interface ToDo {
-  title: String;
-  completed: boolean;
-  description: String;
-  user: String;
-  __v: Number;
-  _id: string;
-}
+function AllData({ byIdTodos, togleFunc, language }: TodoById) {
+  // editModal togle
+  const [togleEditModal, setTogleEditModal] = useState(false);
 
-function AllData({ byIdTodos , togleFunc }: TodoById ) {
+  const [editTodo, setEditTodo] = useState<ToDo | null>(null);
 
-  const [editTodo,setEditTodo] = useState<ToDo | null>(null);
-
-    
-
-  const {mutateAsync} = useDeleteTodo();
+  const { mutateAsync } = useDeleteTodo();
 
   const delRequest = async (id: string) => {
     mutateAsync(id)
@@ -253,7 +266,7 @@ function AllData({ byIdTodos , togleFunc }: TodoById ) {
             key={item._id}
             className="border-b-[1px] border-b-indigo-700 mt-[20px] pb-[10px] flex justify-between items-center  "
           >
-            <div className=" flex items-center gap-[20px] " >
+            <div className=" flex items-center gap-[20px] ">
               <input type="checkbox" checked={item.completed} />
               <p
                 className={`${
@@ -264,22 +277,34 @@ function AllData({ byIdTodos , togleFunc }: TodoById ) {
               </p>
             </div>
             <div className=" flex gap-[15px] items-center ">
-              <button onClick={(e)=>{
-                e.preventDefault();
-                togleFunc();
-                setEditTodo(item);
-              }} className="border-0 bg-none text-gray-500 text-[22px] hover:cursor-pointer hover:text-indigo-700 ">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  // togleFunc();
+                  setEditTodo(item);
+                  setTogleEditModal(true);
+                }}
+                className="border-0 bg-none text-gray-500 text-[22px] hover:cursor-pointer hover:text-indigo-700 "
+              >
                 <CiEdit />
               </button>
               <button
-               onClick={() => delRequest(item._id)}
-              className="border-0 bg-none text-gray-500 text-[18px] hover:cursor-pointer hover:text-red-700 ">
+                onClick={() => delRequest(item._id)}
+                className="border-0 bg-none text-gray-500 text-[18px] hover:cursor-pointer hover:text-red-700 "
+              >
                 <FaRegTrashAlt />
               </button>
             </div>
           </form>
         ))}
       </div>
+      {togleEditModal && (
+        <Modal
+          editModal={editTodo}
+          togModal={() => setTogleEditModal(false)}
+          language={language}
+        />
+      )}
     </>
   );
 }

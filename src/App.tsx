@@ -10,16 +10,16 @@ import { useEffect } from "react";
 
 function App() {
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  useEffect(()=>{
-    const token = localStorage.getItem('token');
-    if(token){
-      navigate('/main')
-    }else{
-      navigate('/');
-    }
-  },[])
+  // useEffect(()=>{
+  //   const token = localStorage.getItem('token');
+  //   if(token){
+  //     navigate('/main')
+  //   }else{
+  //     navigate('/');
+  //   }
+  // },[])
 
   return (
     <>

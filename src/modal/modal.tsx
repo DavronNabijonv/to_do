@@ -1,104 +1,114 @@
-import React, { useState } from "react";
-import { useAddTodo } from "../hooks/useTodo";
+import { useEffect, useState } from "react";
+import { useAddTodo, useUpdateTodo } from "../hooks/useTodo";
 import { toast } from "react-toastify";
 
+interface Props {
+  togModal: () => void;
+  language:Record<string,string>;
+  editModal: EditToDo | null;
+}
 
-  // todo requeriments
-interface ToDo {
-  title: String;
+interface EditToDo {
+  title: string;
   completed: boolean;
-  description: String;
-  user: String;
-  __v: Number;
+  description: string;
+  user: string;
+  __v: number;
   _id: string;
 }
 
-
-  interface TogleModal {
-    togModal: () => void;
-    language:Record<string,string>;
-  }
-
-  interface EditModal{
-    togleEdit:boolean;
-    editTodo:{};
-  }
-
-export default function Modal({ togModal , language }: TogleModal,) {
+export default function Modal({ togModal, language, editModal }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [compCheck, setCompCheck] = useState(false);
-  const {mutateAsync} = useAddTodo();
 
-  const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCompCheck(e.target.checked);
+  const { mutateAsync: createTodo } = useAddTodo();
+  const { mutateAsync: updateTodo } = useUpdateTodo();
+
+  // Tahrirlash rejimida inputlarni to‘ldirish
+  useEffect(() => {
+    if (editModal) {
+      setTitle(editModal.title as string);
+      setDescription(editModal.description as string);
+      setCompCheck(editModal.completed);
+    }
+  }, [editModal]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newTodo = {
+      title,
+      description,
+      completed: compCheck,
+    };
+
+    try {
+      if (editModal) {
+        await updateTodo({
+          id: editModal._id,
+          update: newTodo,
+        });
+        toast.success("Successfully updated!");
+      } else {
+        await createTodo(newTodo);
+        toast.success("Successfully created!");
+      }
+      togModal(); // Modalni yopish
+    } catch (err) {
+      toast.error("Error occurred");
+    }
   };
 
-  const sendRequest = async(e:React.FormEvent<HTMLFormElement>)=>{
-    e.preventDefault();
-    mutateAsync({title,description})
-    .then((res)=>{
-        console.log('Modal succes:',res);
-        toast.success("Successfuly!");
-        togModal();
-    })
-    .catch(() => {
-        toast.error("Error");
-      });
-  } 
-
   return (
-    <div className="fixed top-0 left-0 w-full h-full z-50 flex items-center justify-center">
-      {/* Modal Overlay */}
-      <div
-        className="absolute w-full h-full bg-gray-300 opacity-[0.5] bg-opacity-50 z-40"
-        onClick={togModal}
-      ></div>
+    <div className=" fixed top-0 left-0 w-full h-full bg-black/40 z-[100] flex items-center justify-center ">
+      <form
+        onSubmit={handleSubmit}
+        className=" bg-white dark:bg-slate-800 w-[90%] max-w-[500px] p-[30px] rounded-xl flex flex-col gap-4 shadow-xl "
+      >
+        <h2 className=" text-center text-2xl font-bold text-indigo-700 ">
+          {editModal ? language.editnote : language.newnote}
+        </h2>
 
-      {/* Modal Body */}
-      <div className="relative z-50 bg-white rounded-lg p-6  shadow-lg w-full max-w-[500px]">
-        <h2 className="text-xl font-bold mb-4 text-center">{language.newnote}</h2>
-        <form className="flex flex-col gap-[20px]" onSubmit={sendRequest} > 
+        <input
+          type="text"
+          className=" border p-2 rounded-md text-[18px] "
+          placeholder={language.title}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <textarea
+          className=" border p-2 rounded-md text-[18px] "
+          placeholder={language.description}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+        <label className=" flex items-center gap-3 text-[18px] ">
           <input
-            type="text"
-            placeholder="Note title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="p-2 border rounded bg-white"
+            type="checkbox"
+            checked={compCheck}
+            onChange={(e) => setCompCheck(e.target.checked)}
           />
-          <textarea
-            placeholder="Note text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="p-2 border rounded bg-white"
-          ></textarea>
-
-          <div className="flex justify-between w-full items-center">
-                <span>{language.complated}</span>
-              <input
-                type="checkbox"
-                checked={compCheck}
-                onChange={handleCheckbox}
-              />
-          </div>
-
-          <div className="flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={togModal}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              {language.cancel}
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              {language.apply}
-            </button>
-          </div>
-        </form>
-      </div>
+          {language.complated}
+        </label>
+        <div className=" flex justify-between gap-4">
+          <button
+            type="button"
+            onClick={togModal}
+            className=" bg-gray-400 hover:bg-gray-500 text-white p-2 px-4 rounded-md w-full "
+          >
+            {language.cancel}
+          </button>
+          <button
+            type="submit"
+            className=" bg-indigo-700 hover:bg-indigo-500 text-white p-2 px-4 rounded-md w-full "
+          >
+            {editModal ? language.edit : language.apply}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
