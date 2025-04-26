@@ -190,7 +190,6 @@ export default function MainPage() {
       ) : (
         <AllData
           byIdTodos={propsTodos}
-          togleFunc={() => setTog(true)}
           setEditTodo={setEditTodo}
           language={languageList[lang]}
         />
@@ -234,12 +233,11 @@ interface ToDo {
 // get todo items
 interface TodoById {
   byIdTodos: ToDo[];
-  togleFunc: () => void;
   setEditTodo: (todo: ToDo) => void;
   language: Record<string, string>;
 }
 
-function AllData({ byIdTodos, togleFunc, language }: TodoById) {
+function AllData({ byIdTodos, language }: TodoById) {
   // editModal togle
   const [togleEditModal, setTogleEditModal] = useState(false);
 
@@ -280,7 +278,6 @@ function AllData({ byIdTodos, togleFunc, language }: TodoById) {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  // togleFunc();
                   setEditTodo(item);
                   setTogleEditModal(true);
                 }}
